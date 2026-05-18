@@ -7,7 +7,7 @@ ENV CATKIN_WS=/opt/kiro/catkin_ws
 ENV PYTHONPATH=/opt/kiro/HybridSORT
 ENV PIP_DEFAULT_TIMEOUT=300
 ENV PIP_RETRIES=10
-ARG TORCH_FLAVOR=cpu
+ARG TORCH_FLAVOR=cu118
 ARG SKIP_MODEL_VALIDATE=0
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
