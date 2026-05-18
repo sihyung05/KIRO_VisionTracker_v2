@@ -3,7 +3,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DEPLOY_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
-TORCH_FLAVOR="${TORCH_FLAVOR:-cpu}"
+TORCH_FLAVOR="${TORCH_FLAVOR:-cu118}"
 NO_CACHE="${NO_CACHE:-0}"
 SKIP_MODEL_VALIDATE="${SKIP_MODEL_VALIDATE:-0}"
 
