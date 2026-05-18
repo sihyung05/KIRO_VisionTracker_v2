@@ -1,0 +1,34 @@
+<launch>
+  <arg name="input_topic" default="/d435/depth/image_rect_raw" />
+  <arg name="output_topic" default="/d435/depth/image_rect_refined" />
+  <arg name="camera_info_topic" default="/d435/depth/camera_info" />
+
+  <node pkg="camera_preprocessing"
+        type="depth_refine_bridge.py"
+        name="depth_refine_bridge"
+        output="screen">
+    <param name="input_topic" value="$(arg input_topic)" />
+    <param name="output_topic" value="$(arg output_topic)" />
+    <param name="camera_info_topic" value="$(arg camera_info_topic)" />
+    <param name="use_camera_info" value="true" />
+    <param name="preserve_input_header_stamp" value="true" />
+
+    <param name="depth_scale" value="0.001" />
+    <param name="min_depth_m" value="0.15" />
+    <param name="max_depth_m" value="8.0" />
+
+    <param name="enable_median" value="true" />
+    <param name="median_ksize" value="3" />
+    <param name="enable_bilateral" value="false" />
+    <param name="bilateral_d" value="5" />
+    <param name="bilateral_sigma_color" value="0.06" />
+    <param name="bilateral_sigma_space" value="5.0" />
+
+    <param name="enable_hole_filling" value="true" />
+    <param name="hole_fill_max_iters" value="2" />
+    <param name="hole_fill_kernel" value="3" />
+
+    <param name="enable_temporal_ema" value="false" />
+    <param name="temporal_alpha" value="0.4" />
+  </node>
+</launch>

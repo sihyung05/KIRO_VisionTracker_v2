@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ROS/catkin generated files
+catkin_ws/build/
+catkin_ws/devel/
+catkin_ws/install/
+catkin_ws/logs/
+.catkin_tools/
+
+# Runtime output
+*.log
+*.bag
+*.db3
+debug_image.jpg
+data/rosbags/
+rosbags/
+
+# Model weights and exported engines
+*.pth
+*.pt
+*.onnx
+*.engine
+*.weights
+*.tflite
+
+# Keep placeholder files for expected model directories.
+!**/.gitkeep
+
+# Local environments and editor state
+.env
+.venv/
+venv/
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db

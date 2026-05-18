@@ -1,0 +1,17 @@
+**/.git
+**/__pycache__
+**/*.pyc
+**/*.pyo
+**/.pytest_cache
+**/build
+**/devel
+**/install
+**/logs
+!HybridSORT/fast_reid/logs
+!HybridSORT/fast_reid/logs/market1501
+!HybridSORT/fast_reid/logs/market1501/sbs_S50.pth
+!HybridSORT/fast_reid/logs/msmt17
+!HybridSORT/fast_reid/logs/msmt17/sbs_R50-ibn.pth
+**/venv
+**/.venv
+data/rosbags

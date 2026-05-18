@@ -1,0 +1,143 @@
+<launch>
+  <arg name="image_topic" default="/d435/color/image_raw"/>
+  <arg name="depth_raw_topic" default="/d435/depth/image_rect_raw"/>
+  <arg name="depth_topic" default="/d435/depth/image_rect_refined"/>
+  <arg name="depth_info_topic" default="/d435/depth/camera_info"/>
+  <arg name="output_topic" default="/debug_image"/>
+  <arg name="desired_point_topic" default="/desired_point"/>
+  <arg name="debug_mode" default="true"/>
+  <arg name="target_lost_sec" default="2.0"/>
+
+  <arg name="kiro_root" default="/opt/kiro"/>
+
+  <arg name="robust_depth_on" default="true"/>
+  <arg name="depth_center_ratio" default="0.4"/>
+  <arg name="depth_valid_min" default="0.1"/>
+  <arg name="depth_valid_max" default="12.0"/>
+  <arg name="depth_gate_abs_m" default="0.35"/>
+  <arg name="depth_gate_rel" default="0.25"/>
+  <arg name="depth_reaccept_band_m" default="0.2"/>
+  <arg name="depth_reaccept_count" default="3"/>
+  <arg name="depth_stale_sec" default="0.5"/>
+  <arg name="depth_kf_on" default="true"/>
+  <arg name="depth_kf_q" default="0.05"/>
+  <arg name="depth_kf_r" default="0.15"/>
+  <arg name="depth_kf_stale_sec" default="0.5"/>
+
+  <arg name="device" default="cpu"/>
+
+  <arg name="detector_weights" default="$(arg kiro_root)/data/models/ultralytics/yolov8n.pt"/>
+  <arg name="conf" default="0.1"/>
+  <arg name="nms" default="0.4"/>
+  <arg name="detector_classes" default="[0]"/>
+  <arg name="tsize" default="640"/>
+
+  <arg name="track_thresh" default="0.6"/>
+  <arg name="iou_thresh" default="0.2"/>
+  <arg name="deltat" default="3"/>
+  <arg name="inertia" default="0.05"/>
+  <arg name="asso" default="ciou"/>
+  <arg name="use_byte" default="true"/>
+  <arg name="min_box_area" default="10"/>
+  <arg name="TCM_first_step" default="true"/>
+  <arg name="TCM_byte_step" default="true"/>
+  <arg name="TCM_first_step_weight" default="1.0"/>
+  <arg name="TCM_byte_step_weight" default="1.0"/>
+
+  <arg name="fast_reid_config" default="$(arg kiro_root)/HybridSORT/fast_reid/configs/MSMT17/sbs_R50-ibn.yml"/>
+  <arg name="fast_reid_weights" default="$(arg kiro_root)/HybridSORT/fast_reid/logs/msmt17/sbs_R50-ibn.pth"/>
+
+  <arg name="EG_weight_high_score" default="4.6"/>
+  <arg name="EG_weight_low_score" default="1.3"/>
+  <arg name="low_thresh" default="0.1"/>
+  <arg name="high_score_matching_thresh" default="0.7"/>
+  <arg name="low_score_matching_thresh" default="0.5"/>
+  <arg name="alpha" default="0.9"/>
+  <arg name="with_longterm_reid" default="true"/>
+  <arg name="longterm_reid_weight" default="0.0"/>
+  <arg name="with_longterm_reid_correction" default="true"/>
+  <arg name="longterm_reid_correction_thresh" default="0.4"/>
+  <arg name="longterm_reid_correction_thresh_low" default="0.4"/>
+  <arg name="longterm_bank_length" default="30"/>
+  <arg name="confidence_weighted_longterm_reid" default="false"/>
+  <arg name="longterm_reid_conf_gamma" default="1.0"/>
+  <arg name="adapfs" default="false"/>
+  <arg name="ECC" default="true"/>
+  <arg name="dataset" default=""/>
+
+  <include file="$(find camera_preprocessing)/launch/depth_refine_bridge.launch">
+    <arg name="input_topic" value="$(arg depth_raw_topic)"/>
+    <arg name="output_topic" value="$(arg depth_topic)"/>
+    <arg name="camera_info_topic" value="$(arg depth_info_topic)"/>
+  </include>
+
+  <node
+    pkg="human_tracking"
+    type="ros1_hybridsort_node.py"
+    name="hybridsort_tracker"
+    output="screen"
+    launch-prefix="bash -lc 'until rostopic list 2>/dev/null | grep -q &quot;^$(arg depth_topic)$&quot;; do sleep 0.2; done; exec &quot;$0&quot; &quot;$@&quot;'">
+    <param name="image_topic" value="$(arg image_topic)"/>
+    <param name="depth_topic" value="$(arg depth_topic)"/>
+    <param name="depth_info_topic" value="$(arg depth_info_topic)"/>
+    <param name="output_topic" value="$(arg output_topic)"/>
+    <param name="desired_point_topic" value="$(arg desired_point_topic)"/>
+    <param name="debug_mode" value="$(arg debug_mode)"/>
+    <param name="target_lost_sec" value="$(arg target_lost_sec)"/>
+
+    <param name="robust_depth_on" value="$(arg robust_depth_on)"/>
+    <param name="depth_center_ratio" value="$(arg depth_center_ratio)"/>
+    <param name="depth_valid_min" value="$(arg depth_valid_min)"/>
+    <param name="depth_valid_max" value="$(arg depth_valid_max)"/>
+    <param name="depth_gate_abs_m" value="$(arg depth_gate_abs_m)"/>
+    <param name="depth_gate_rel" value="$(arg depth_gate_rel)"/>
+    <param name="depth_reaccept_band_m" value="$(arg depth_reaccept_band_m)"/>
+    <param name="depth_reaccept_count" value="$(arg depth_reaccept_count)"/>
+    <param name="depth_stale_sec" value="$(arg depth_stale_sec)"/>
+    <param name="depth_kf_on" value="$(arg depth_kf_on)"/>
+    <param name="depth_kf_q" value="$(arg depth_kf_q)"/>
+    <param name="depth_kf_r" value="$(arg depth_kf_r)"/>
+    <param name="depth_kf_stale_sec" value="$(arg depth_kf_stale_sec)"/>
+
+    <param name="detector_weights" value="$(arg detector_weights)"/>
+    <param name="conf" value="$(arg conf)"/>
+    <param name="nms" value="$(arg nms)"/>
+    <param name="detector_classes" value="$(arg detector_classes)"/>
+    <param name="tsize" value="$(arg tsize)"/>
+
+    <param name="device" value="$(arg device)"/>
+
+    <param name="track_thresh" value="$(arg track_thresh)"/>
+    <param name="iou_thresh" value="$(arg iou_thresh)"/>
+    <param name="deltat" value="$(arg deltat)"/>
+    <param name="inertia" value="$(arg inertia)"/>
+    <param name="asso" value="$(arg asso)"/>
+    <param name="use_byte" value="$(arg use_byte)"/>
+    <param name="min_box_area" value="$(arg min_box_area)"/>
+    <param name="TCM_first_step" value="$(arg TCM_first_step)"/>
+    <param name="TCM_byte_step" value="$(arg TCM_byte_step)"/>
+    <param name="TCM_first_step_weight" value="$(arg TCM_first_step_weight)"/>
+    <param name="TCM_byte_step_weight" value="$(arg TCM_byte_step_weight)"/>
+
+    <param name="fast_reid_config" value="$(arg fast_reid_config)"/>
+    <param name="fast_reid_weights" value="$(arg fast_reid_weights)"/>
+
+    <param name="EG_weight_high_score" value="$(arg EG_weight_high_score)"/>
+    <param name="EG_weight_low_score" value="$(arg EG_weight_low_score)"/>
+    <param name="low_thresh" value="$(arg low_thresh)"/>
+    <param name="high_score_matching_thresh" value="$(arg high_score_matching_thresh)"/>
+    <param name="low_score_matching_thresh" value="$(arg low_score_matching_thresh)"/>
+    <param name="alpha" value="$(arg alpha)"/>
+    <param name="with_longterm_reid" value="$(arg with_longterm_reid)"/>
+    <param name="longterm_reid_weight" value="$(arg longterm_reid_weight)"/>
+    <param name="with_longterm_reid_correction" value="$(arg with_longterm_reid_correction)"/>
+    <param name="longterm_reid_correction_thresh" value="$(arg longterm_reid_correction_thresh)"/>
+    <param name="longterm_reid_correction_thresh_low" value="$(arg longterm_reid_correction_thresh_low)"/>
+    <param name="longterm_bank_length" value="$(arg longterm_bank_length)"/>
+    <param name="confidence_weighted_longterm_reid" value="$(arg confidence_weighted_longterm_reid)"/>
+    <param name="longterm_reid_conf_gamma" value="$(arg longterm_reid_conf_gamma)"/>
+    <param name="adapfs" value="$(arg adapfs)"/>
+    <param name="ECC" value="$(arg ECC)"/>
+    <param name="dataset" value="$(arg dataset)"/>
+  </node>
+</launch>
