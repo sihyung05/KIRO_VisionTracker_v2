@@ -9,7 +9,15 @@ This `KIRO_VisionTracker_v2` folder intentionally excludes rosbag files. The lau
 - Depth camera info: `/d435/depth/camera_info`
 - Refined depth output: `/d435/depth/image_rect_refined`
 - Tracker debug image: `/debug_image`
-- Target 3D point: `/desired_point`
+- Target 3D point: `/desired_point` in meters, using a robot-style camera frame: x forward, y left, z up.
+
+`/desired_point` is transformed from the camera optical frame `(x right, y down, z forward)` as:
+
+```text
+x = optical z
+y = -optical x
+z = -optical y
+```
 
 ## Build
 

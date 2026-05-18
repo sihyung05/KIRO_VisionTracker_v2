@@ -5,6 +5,7 @@
   <arg name="depth_info_topic" default="/d435/depth/camera_info"/>
   <arg name="output_topic" default="/debug_image"/>
   <arg name="desired_point_topic" default="/desired_point"/>
+  <arg name="desired_point_frame_id" default="d435_robot_camera"/>
   <arg name="debug_mode" default="true"/>
   <arg name="target_lost_sec" default="2.0"/>
 
@@ -82,6 +83,7 @@
     <param name="depth_info_topic" value="$(arg depth_info_topic)"/>
     <param name="output_topic" value="$(arg output_topic)"/>
     <param name="desired_point_topic" value="$(arg desired_point_topic)"/>
+    <param name="desired_point_frame_id" value="$(arg desired_point_frame_id)"/>
     <param name="debug_mode" value="$(arg debug_mode)"/>
     <param name="target_lost_sec" value="$(arg target_lost_sec)"/>
 

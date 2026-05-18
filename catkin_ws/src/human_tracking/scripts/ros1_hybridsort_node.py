@@ -139,6 +139,7 @@ class HybridSortRosNode:
         self.last_debug_image = None
         self.debug_mode = bool(rospy.get_param("~debug_mode", True))
         self.desired_point_topic = rospy.get_param("~desired_point_topic", "/desired_point")
+        self.desired_point_frame_id = rospy.get_param("~desired_point_frame_id", "d435_robot_camera")
         self.depth_topic = rospy.get_param("~depth_topic", "/d435/depth/image_rect_refined")
         self.depth_info_topic = rospy.get_param("~depth_info_topic", "/d435/depth/camera_info")
         self.target_lost_sec = float(
@@ -345,6 +346,12 @@ class HybridSortRosNode:
                 return torch.device("cuda")
             rospy.logwarn("CUDA not available. Falling back to CPU.")
         return torch.device("cpu")
+
+    @staticmethod
+    def _optical_to_robot_camera_point(x_right, y_down, z_forward):
+        # Optical camera frame: x right, y down, z forward.
+        # Robot-style camera frame: x forward, y left, z up.
+        return float(z_forward), float(-x_right), float(-y_down)
 
     def on_depth_info(self, msg):
         if not msg.K or len(msg.K) < 9:
@@ -648,13 +655,16 @@ class HybridSortRosNode:
                     z = z_raw
                 #rospy.loginfo("Target ID: %s at (u=%d, v=%d) with depth z=%.3f m", target_id, u, v, z if z else -1.0)
                 if z is not None and z > 0:
-                    X = (u - self.cx) * z / self.fx
-                    Y = (v - self.cy) * z / self.fy
+                    x_right = (u - self.cx) * z / self.fx
+                    y_down = (v - self.cy) * z / self.fy
+                    x_forward, y_left, z_up = self._optical_to_robot_camera_point(x_right, y_down, z)
                     pt_msg = PointStamped()
                     pt_msg.header = depth_msg.header
-                    pt_msg.point.x = float(X)
-                    pt_msg.point.y = float(Y)
-                    pt_msg.point.z = float(z)
+                    if self.desired_point_frame_id:
+                        pt_msg.header.frame_id = self.desired_point_frame_id
+                    pt_msg.point.x = x_forward
+                    pt_msg.point.y = y_left
+                    pt_msg.point.z = z_up
                     #rospy.loginfo("HERE!!!")
                     self.point_pub.publish(pt_msg)
 
