@@ -8,6 +8,7 @@ ENV PYTHONPATH=/opt/kiro/HybridSORT
 ENV PIP_DEFAULT_TIMEOUT=300
 ENV PIP_RETRIES=10
 ARG TORCH_FLAVOR=cpu
+ARG SKIP_MODEL_VALIDATE=0
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
@@ -63,7 +64,7 @@ RUN python3 -m pip install --no-cache-dir \
 COPY . /opt/kiro
 
 RUN source /opt/ros/noetic/setup.bash \
-    && python3 /opt/kiro/scripts/validate_runtime.py
+    && SKIP_MODEL_VALIDATE="${SKIP_MODEL_VALIDATE}" python3 /opt/kiro/scripts/validate_runtime.py
 
 RUN find /opt/kiro/catkin_ws/src -path '*/scripts/*.py' -type f -exec chmod +x {} \; \
     && chmod +x /opt/kiro/scripts/*.sh \

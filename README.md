@@ -35,6 +35,14 @@ HybridSORT/fast_reid/logs/msmt17/sbs_R50-ibn.pth
 
 The `.dockerignore` keeps these local files available to Docker builds, while `.gitignore` keeps them out of GitHub.
 
+If you only want to build the Docker environment before copying model files, skip model loading validation:
+
+```bash
+SKIP_MODEL_VALIDATE=1 ./scripts/build_image.sh
+```
+
+That image is useful for checking dependencies, but `run_tracker.sh` still needs the model files baked into the image or provided through the dev-mounted folder.
+
 ## Run
 
 ```bash
